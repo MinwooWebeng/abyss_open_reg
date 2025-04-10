@@ -1,0 +1,25 @@
+<!DOCTYPE AML>
+<aml>
+<head>
+    <script>
+
+async function getRandom() {
+    const response = await fetch("http://localhost:8080/api/random");
+    const body = await response.text();
+
+    return body;
+}
+
+async function requestRandezvous(targ) {
+    const response = await fetch("http://localhost:8080/api/request?id=" 
+        + host.hash() + "&#38;targ=" + targ);
+    console.log(JSON.stringify(response, null, 4));
+    const body = await response.text();
+}
+
+getRandom()
+    .then((id) =&gt; requestRandezvous(id));
+
+    </script
+</head>
+</aml>
