@@ -3,23 +3,40 @@
 <head>
     <script>
 
-async function getRandom() {
-    const response = await fetch("http://localhost:8080/api/random");
-    const body = await response.text();
+async function requestRandom() {
+    const rand_response = await fetch("http://localhost:8080/api/random?id="
+        + host.hash());
+    if (rand_response.status !== 200) {
+        console.log("failed to get random peer: " 
+            + (await rand_response.text()).trim()
+            + "(" + rand_response.statusText + ")");
+        return;
+    }
 
-    return body;
-}
-
-async function requestRandezvous(targ) {
+    const targ = await rand_response.text();
     const response = await fetch("http://localhost:8080/api/request?id=" 
         + host.hash() + "&#38;targ=" + targ);
-    console.log(JSON.stringify(response, null, 4));
+    //console.log(JSON.stringify(response, null, 4));
     const body = await response.text();
+    const bodyParts = body.split("\n\n");
+    //console.log(bodyParts[0] + "&lt;&lt; random return");
+    if (!host.register_peer(bodyParts[1] + '\n', bodyParts[2])) {
+        console.log("failed to append " + bodyParts[0]);
+        return;
+    }
+    console.log("registered peer " + bodyParts[0]);
+
+    await sleep(1000);
+    console.log("connecting peer " + bodyParts[0]);
+
+    host.connect(bodyParts[0]);
+    await sleep(1000);
+
+    host.move_world(bodyParts[0]);
 }
 
-getRandom()
-    .then((id) =&gt; requestRandezvous(id));
+requestRandom();
 
-    </script
+    </script>
 </head>
 </aml>

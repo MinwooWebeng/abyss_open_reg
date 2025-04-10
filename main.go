@@ -59,6 +59,7 @@ func cleanup() {
 	now := time.Now()
 	for k, v := range memory {
 		if now.Sub(v.last_update) > 1*time.Minute {
+			fmt.Println("outdated: " + k)
 			v.event_ch <- nil
 			delete(memory, k)
 		}
@@ -97,11 +98,11 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	// Store in the map (with lock)
 	mu.Lock()
 	data, ok := memory[abyss_url.Hash]
-
 	if ok {
 		data.event_ch <- nil
 		delete(memory, abyss_url.Hash)
 	}
+
 	memory[abyss_url.Hash] = &HostData{
 		connection_info: bodyBytes,
 		event_ch:        make(chan *JoinRequestEvent, 8),
@@ -150,7 +151,7 @@ func eventWaiter(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.Write(join_req.connection_info)
 		}
-	case <-time.After(30 * time.Second):
+	case <-time.After(5 * time.Second):
 		w.Write([]byte(".")) //OK
 	}
 
@@ -164,23 +165,34 @@ func randomHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "URL parameter 'id' missing", http.StatusBadRequest)
+		return
+	}
+
 	mu.Lock()
+	defer mu.Unlock()
 
 	// If there are no entries, return an error
 	if len(memory) == 0 {
-		http.Error(w, "No data", http.StatusNotFound)
-		mu.Unlock()
+		http.Error(w, "No peers available", http.StatusNotFound)
 		return
 	}
 
 	// Pick a random entry
 	var keys []string
 	for k := range memory {
+		if k == id {
+			continue
+		}
 		keys = append(keys, k)
 	}
+	if len(keys) == 0 {
+		http.Error(w, "No peers available", http.StatusNotFound)
+		return
+	}
 	randomKey := keys[rand.Intn(len(keys))]
-
-	mu.Unlock()
 
 	w.Write([]byte(randomKey))
 }
@@ -205,7 +217,7 @@ func joinRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	mu.Lock()
 	host_data, id_ok := memory[id]
-	targ_data, targ_ok := memory[id]
+	targ_data, targ_ok := memory[targ]
 	mu.Unlock()
 
 	if !id_ok {

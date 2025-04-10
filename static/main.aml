@@ -9,29 +9,45 @@ async function register() {
         method: "POST",
         body: host.abyss_url() + "\n\n" + host.root_certificate() + '\n' + host.handshake_key_certificate(),
     });
+    if (response.status !== 200) {
+        console.log("failed to register: " 
+            + (await response.text()).trim());
+        return;
+    }
     console.log(await response.text());
 
     while(true) {
         const response = await fetch("http://localhost:8080/api/wait?id=" + host.hash());
         if (response.status !== 200) {
-            console.log("failed to wait for event: " + (await response.text()).trim());
+            console.log("failed to wait for event: " 
+                + (await response.text()).trim());
             return;
         }
-        body = (await response.text()).trim();
-        console.log("wait: " + body);
-
+        body = await response.text();
         if (body === ".") {
-            continue;
+            console.log(".")
+            continue; //waiting
         }
 
         // received randezvous request
-        const bodyParts = body.split("\n\n");
-        console.log(bodyParts[0])
-        console.log(bodyParts[1])
-        console.log(bodyParts[2])
+        const bodyParts = body.split("\n\n", 3);
+        if (bodyParts.length != 3) {
+            console.log("failed to parse response: (" + len(bodyParts) + ")");
+            continue;
+        }
+        //console.log(bodyParts[0] + " wants to connect me.")
+        if (!host.register_peer(bodyParts[1] + '\n', bodyParts[2])) {
+            console.log("failed to append " + bodyParts[0]);
+            continue;
+        }
+        console.log("registered peer " + bodyParts[0]);
+
+        await sleep(1000);
+        console.log("connecting peer " + bodyParts[0]);
+        
+        host.connect(bodyParts[0]);
     }
 }
-
 register();
 
     </script>
