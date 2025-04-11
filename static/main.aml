@@ -36,14 +36,11 @@ async function register() {
             continue;
         }
         //console.log(bodyParts[0] + " wants to connect me.")
-        if (!host.register_peer(bodyParts[1] + '\n', bodyParts[2])) {
-            console.log("failed to append " + bodyParts[0]);
-            continue;
-        }
-        console.log("registered peer " + bodyParts[0]);
+        host.register_peer(bodyParts[1] + '\n', bodyParts[2]);
+        console.log("(main.aml)registered peer " + bodyParts[0]);
 
         await sleep(1000);
-        console.log("connecting peer " + bodyParts[0]);
+        console.log("(main.aml)connecting peer " + bodyParts[0]);
         
         host.connect(bodyParts[0]);
     }

@@ -20,14 +20,12 @@ async function requestRandom() {
     const body = await response.text();
     const bodyParts = body.split("\n\n");
     //console.log(bodyParts[0] + "&lt;&lt; random return");
-    if (!host.register_peer(bodyParts[1] + '\n', bodyParts[2])) {
-        console.log("failed to append " + bodyParts[0]);
-        return;
-    }
-    console.log("registered peer " + bodyParts[0]);
+
+    host.register_peer(bodyParts[1] + '\n', bodyParts[2]);
+    console.log("(random.aml)registered peer " + bodyParts[0]);
 
     await sleep(1000);
-    console.log("connecting peer " + bodyParts[0]);
+    console.log("(random.aml)connecting peer " + bodyParts[0]);
 
     host.connect(bodyParts[0]);
     await sleep(1000);
