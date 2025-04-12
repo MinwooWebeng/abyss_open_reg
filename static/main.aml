@@ -25,7 +25,7 @@ async function register() {
         }
         body = await response.text();
         if (body === ".") {
-            console.log(".")
+            //console.log(".")
             continue; //waiting
         }
 
@@ -39,7 +39,7 @@ async function register() {
         host.register_peer(bodyParts[1] + '\n', bodyParts[2]);
         console.log("(main.aml)registered peer " + bodyParts[0]);
 
-        await sleep(1000);
+        await sleep(100);
         console.log("(main.aml)connecting peer " + bodyParts[0]);
         
         host.connect(bodyParts[0]);

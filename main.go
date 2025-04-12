@@ -1,11 +1,11 @@
 package main
 
 import (
+	"abyss_open_reg/aurl"
 	"bytes"
 	"fmt"
 	"io"
 	"log"
-	"main/aurl"
 	"math/rand"
 	"net/http"
 	"sync"

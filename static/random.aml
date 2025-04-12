@@ -24,11 +24,11 @@ async function requestRandom() {
     host.register_peer(bodyParts[1] + '\n', bodyParts[2]);
     console.log("(random.aml)registered peer " + bodyParts[0]);
 
-    await sleep(1000);
+    await sleep(100);
     console.log("(random.aml)connecting peer " + bodyParts[0]);
 
     host.connect(bodyParts[0]);
-    await sleep(1000);
+    await sleep(100);
 
     host.move_world(bodyParts[0]);
 }
