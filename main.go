@@ -29,7 +29,7 @@ var (
 	mu     sync.RWMutex
 )
 
-func main() {
+func main() {	
 	http.HandleFunc("/api/register", registerHandler)
 	http.HandleFunc("/api/wait", eventWaiter)
 
@@ -46,13 +46,12 @@ func main() {
 		}
 	}()
 
-	log.Println("Starting server on :8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Println("Starting server on https://irublue.com")
+	log.Fatal(http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/yourdomain.com/fullchain.pem", "/etc/letsencrypt/live/yourdomain.com/privkey.pem", nil))
 }
 
 // removes host data that had no activity for 1 min.
 func cleanup() {
-
 	mu.Lock()
 	defer mu.Unlock()
 
