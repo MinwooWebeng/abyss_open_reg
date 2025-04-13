@@ -5,7 +5,7 @@
 
 async function register() {
     console.log("registering");
-    const response = await fetch("http://localhost:8080/api/register", {
+    const response = await fetch("https://irublue.com/api/register", {
         method: "POST",
         body: host.abyss_url() + "\n\n" + host.root_certificate() + '\n' + host.handshake_key_certificate(),
     });
@@ -17,7 +17,7 @@ async function register() {
     console.log(await response.text());
 
     while(true) {
-        const response = await fetch("http://localhost:8080/api/wait?id=" + host.hash());
+        const response = await fetch("https://irublue.com/api/wait?id=" + host.hash());
         if (response.status !== 200) {
             console.log("failed to wait for event: " 
                 + (await response.text()).trim());
