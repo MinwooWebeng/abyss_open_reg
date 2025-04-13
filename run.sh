@@ -1,5 +1,3 @@
 #!/bin/bash
+rm nohup.out
 nohup ./abyss_open_reg &
-pid=$!
-echo "kill $pid" > kill.sh
-chmod +x kill.sh
