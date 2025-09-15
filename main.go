@@ -81,7 +81,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Split into three parts
-	parts := bytes.SplitN(bodyBytes, []byte("\n\n"), 3)
+	parts := bytes.SplitN(bodyBytes, byte(','), 3)
 	if len(parts) != 3 {
 		http.Error(w, "Bad Request: Expected three newline-separated values - "+fmt.Sprint(len(parts)), http.StatusBadRequest)
 		return
