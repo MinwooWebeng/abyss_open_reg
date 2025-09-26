@@ -26,7 +26,11 @@ func TestSteppingConsumer(t *testing.T) {
 				ctx, ctx_cancel := context.WithTimeout(context.Background(), time.Duration(1<<63-1))
 				defer ctx_cancel()
 
-				arg, consume, ok := consumer.TryConsume(ctx)
+				arg, consume, ok, ok_mono := consumer.TryConsume(ctx)
+				if !ok_mono {
+					fatal_ch <- "duplicate wait"
+				}
+
 				if !ok {
 					fatal_ch <- "unexpected timeout"
 				}

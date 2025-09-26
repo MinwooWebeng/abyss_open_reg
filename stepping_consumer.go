@@ -49,24 +49,23 @@ func (c *SteppingConsumer) TryConsume(ctx context.Context) (any, chan<- bool, bo
 	if !c.is_consuming.CompareAndSwap(false, true) {
 		return nil, nil, false, false
 	}
+	defer func() {
+		c.is_consuming.Store(false)
+	}()
 
 	c.is_open.Store(true)
 
 	select {
 	case contract := <-c.ch:
 		//is_open remains false; blocks additional contracts until TryConsume() re-opens.
-		c.is_consuming.Store(false)
 		return contract.argument, contract.confirmation, true, true
 	case <-ctx.Done():
 		// have to close occupation
 		if !c.is_open.CompareAndSwap(true, false) {
 			//put at last moment. We just handle this as valid.
 			contract := <-c.ch
-			c.is_consuming.Store(false)
 			return contract.argument, contract.confirmation, true, true
 		}
-
-		c.is_consuming.Store(false)
 		return nil, nil, false, true
 	}
 }

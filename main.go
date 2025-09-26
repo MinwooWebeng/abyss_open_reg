@@ -38,7 +38,9 @@ func main() {
 	http.HandleFunc("/api/request", joinRequestHandler)
 
 	static_fs := http.FileServer(http.Dir("./static/"))
-	http.Handle("/", static_fs)
+	main_fs := http.FileServer(http.Dir("./main/"))
+	http.Handle("/static/", http.StripPrefix("/static/", static_fs))
+	http.Handle("/", main_fs)
 
 	go func() {
 		for {
