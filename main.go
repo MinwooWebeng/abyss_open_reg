@@ -39,8 +39,15 @@ func main() {
 
 	static_fs := http.FileServer(http.Dir("./static/"))
 	main_fs := http.FileServer(http.Dir("./main/"))
+
 	http.Handle("/static/", http.StripPrefix("/static/", static_fs))
-	http.Handle("/", main_fs)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			http.ServeFile(w, r, "./main/index.html")
+			return
+		}
+		main_fs.ServeHTTP(w, r)
+	})
 
 	go func() {
 		for {
@@ -102,7 +109,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Store in the map (with lock)
 	mu.Lock()
-	delete(live_host_data, abyss_url.Hash)
+	//delete(live_host_data, abyss_url.Hash)
 	live_host_data[abyss_url.Hash] = &HostData{
 		connection_info:   bodyBytes,
 		join_req_consumer: MakeSteppingConsumer(),
@@ -140,7 +147,7 @@ func eventWaiter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, ctx_cancel := context.WithTimeout(r.Context(), time.Second*5)
+	ctx, ctx_cancel := context.WithTimeout(r.Context(), time.Second*10)
 	defer ctx_cancel()
 
 	fmt.Println("waiting: " + id)
